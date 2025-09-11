@@ -82,12 +82,15 @@ class App(ctk.CTk):
             self.mostrar_resultado(str(e), False)
     
     # Agregar aquí los métodos para las otras funcionalidades (vender tiquete, consultar, etc.)
-    # def mostrar_vender_tiquete(self):
-    #     self.limpiar_interfaz()
-    #     # ... crear widgets para esta pantalla
+    def mostrar_vender_tiquete(self):
+         self.limpiar_interfaz()
+         self.frame_vender_tiquete = ctk.CTkFrame(self)
+         self.frame_crear_vuelo.pack(pady=20, padx=20, fill="both", expand=True)
+         
 
-    # def mostrar_consultar_vuelos(self):
-    #     self.limpiar_interfaz()
+    def mostrar_consultar_vuelos(self):
+         self.limpiar_interfaz()
+         
     #     # ... crear widgets para esta pantalla
 
     def mostrar_resultado(self, mensaje, exito=True):
