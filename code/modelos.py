@@ -1,4 +1,4 @@
-# modelo.py
+#modelos
 
 from datetime import datetime
 
@@ -14,18 +14,12 @@ class Avion:
         self.modelo = modelo
         self.capacidad_total = capacidad_total
 
-class Asiento:
-    def __init__(self, numero_asiento, clase, disponible=True):
-        self.numero_asiento = numero_asiento
-        self.clase = clase
-        self.disponible = disponible
-
 class Tiquete:
-    def __init__(self, id_tiquete, clase, precio_tiquete, asiento_asignado=None):
+    def __init__(self, id_tiquete, clase, precio_tiquete, codigo_vuelo):
         self.id_tiquete = id_tiquete
         self.clase = clase
-        self.asiento_asignado = asiento_asignado
         self.precio_tiquete = precio_tiquete
+        self.codigo_vuelo = codigo_vuelo
 
 class Pasajero:
     def __init__(self, tipo_documento, id_pasajero, nombre_completo, sexo, fecha_nacimiento, telefono):
@@ -44,10 +38,9 @@ class Vuelo:
         self.fecha_salida = datetime.strptime(fecha_salida, '%Y-%m-%d %H:%M')
         self.fecha_llegada = datetime.strptime(fecha_llegada, '%Y-%m-%d %H:%M')
         
-        # Atributos para almacenar los objetos relacionados
+        self.capacidad_economica = capacidad_economica
+        self.capacidad_preferencial = capacidad_preferencial
+
+        # Relaciones
         self.pasajeros = []
         self.tripulacion = []
-        
-        # Atributos para la capacidad, ya que el módulo de gestión ahora lo controlará todo
-        self.capacidad_economica_restante = capacidad_economica
-        self.capacidad_preferencial_restante = capacidad_preferencial
