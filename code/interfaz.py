@@ -19,6 +19,8 @@ class App(ctk.CTk):
         self.current_frame = frame_class(self, *args, **kwargs)
         self.current_frame.pack(fill="both", expand=True)
 
+    def mostrar_mensaje(self, mensaje, titulo="Notificación"):
+        CTkMessagebox(title=titulo, message=mensaje, icon="info")
 class FrameVuelos(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -26,7 +28,7 @@ class FrameVuelos(ctk.CTkFrame):
         self.vuelos_frame = ctk.CTkScrollableFrame(self)
         self.vuelos_frame.pack(fill="both", expand=True)
         self.mostrar_vuelos()
-
+        
     def mostrar_vuelos(self):
         for widget in self.vuelos_frame.winfo_children():
             widget.destroy()
@@ -107,14 +109,7 @@ class FrameCompraTiquete(ctk.CTkFrame):
 
     def procesar_venta(self, clase_elegida):
         # Validar primero
-        if (not self.tipo_doc_entry.get().strip() or
-            not self.num_doc_entry.get().strip() or
-            not self.nombre_entry.get().strip() or
-            not self.sexo_entry.get().strip() or
-            not self.fecha_nac_entry.get().strip() or
-            not self.telefono_entry.get().strip()):
-            CTkMessagebox(title="Error", message="Por favor, completa todos los campos.")
-            return
+ 
         pasajero_data = {
             'tipo_documento': self.tipo_doc_entry.get().strip(),
             'id_pasajero': self.num_doc_entry.get().strip(),
@@ -123,12 +118,12 @@ class FrameCompraTiquete(ctk.CTkFrame):
             'fecha_nacimiento': self.fecha_nac_entry.get().strip(),
             'telefono': self.telefono_entry.get().strip()
         }
-        try:
-            vender_tiquete(self.codigo_vuelo, pasajero_data, clase_elegida)
-            CTkMessagebox(title="Éxito", message="¡Tiquete comprado con éxito!")
-            self.volver()
-        except ValueError as e:
-            CTkMessagebox(title="Error", message=str(e))
+        resultado = vender_tiquete(self.codigo_vuelo, pasajero_data, clase_elegida)
+
+        if isinstance(resultado, str):
+            self.master.mostrar_mensaje(f"{resultado}", "Error en la Venta")
+        else:
+            self.master.mostrar_mensaje(f"Tiquete comprado con éxito. ID Tiquete: {resultado.id_tiquete}", "Venta Exitosa")
 
     def volver(self):
         self.master.show_frame(FrameVuelos)

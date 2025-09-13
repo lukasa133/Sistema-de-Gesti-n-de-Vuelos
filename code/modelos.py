@@ -1,18 +1,29 @@
-#modelos
+# modelos.py
 
 from datetime import datetime
 
+# ====================================================================================
+# No se esta utilizando
 class Tripulacion:
     def __init__(self, id_tripulante, nombre, rol):
         self.id_tripulante = id_tripulante
         self.nombre = nombre
         self.rol = rol
-
 class Avion:
     def __init__(self, id_avion, modelo, capacidad_total):
         self.id_avion = id_avion
         self.modelo = modelo
         self.capacidad_total = capacidad_total
+
+class Asiento:
+    def __init__(self, numero_asiento, clase, disponible=True):
+        self.numero_asiento = numero_asiento
+        self.clase = clase
+        self.disponible = disponible
+
+    def ocupar_asiento(self):
+        self.disponible = False
+# ====================================================================================
 
 class Tiquete:
     def __init__(self, id_tiquete, clase, precio_tiquete, codigo_vuelo):
@@ -38,9 +49,27 @@ class Vuelo:
         self.fecha_salida = datetime.strptime(fecha_salida, '%Y-%m-%d %H:%M')
         self.fecha_llegada = datetime.strptime(fecha_llegada, '%Y-%m-%d %H:%M')
         
+        # Atributos de capacidad
         self.capacidad_economica = capacidad_economica
         self.capacidad_preferencial = capacidad_preferencial
-
+        
         # Relaciones
         self.pasajeros = []
         self.tripulacion = []
+
+    def verificarDisponibilidad(self, clase_elegida):
+        """Verifica si hay asientos disponibles en la clase elegida."""
+        clase_elegida = clase_elegida.lower()
+        if clase_elegida == 'economica':
+            return self.capacidad_economica > 0
+        elif clase_elegida == 'preferencial':
+            return self.capacidad_preferencial > 0
+        return False
+    
+    def reducir_capacidad(self, clase_elegida):
+        """Reduce la capacidad disponible de una clase."""
+        clase_elegida = clase_elegida.lower()
+        if clase_elegida == 'economica':
+            self.capacidad_economica -= 1
+        elif clase_elegida == 'preferencial':
+            self.capacidad_preferencial -= 1

@@ -1,4 +1,4 @@
-#gestion.py
+# gestion.py
 
 from modelos import Vuelo, Pasajero, Tiquete
 from datetime import datetime
@@ -9,7 +9,7 @@ from datetime import datetime
 
 # Registros globales
 vuelos_registrados = []
-pasajeros_registrados = []
+'''pasajeros_registrados = []'''
 tiquetes_vendidos = []
 
 # Vuelos pre-existentes con sus capacidades
@@ -51,45 +51,37 @@ vuelos_registrados.extend([vuelo1, vuelo2, vuelo3])
 # ====================================================================================
 
 def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
-    """
-    Vende un tiquete a un pasajero para un vuelo específico.
-    Retorna el Tiquete vendido si la operación es exitosa.
-    """
+    if not all(pasajero_dict.values()):
+        return "¡ERROR! Todos los campos deben estar completos."
+# ====================================================================================     
+# La condicional nunca se cumple   
     vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None)
     if not vuelo:
-        raise ValueError("Error: Vuelo no encontrado.")
-    
-    asientos_ocupados_en_clase = sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase == clase_elegida)
-    
-    if clase_elegida == 'Economica':
-        capacidad_maxima = vuelo.capacidad_economica
-        precio = 120.000 
-    elif clase_elegida == 'Preferencial':
-        capacidad_maxima = vuelo.capacidad_preferencial
-        precio = 750.000
-    else:
-        raise ValueError("Error: Clase de tiquete no válida.")
-    
-    if asientos_ocupados_en_clase >= capacidad_maxima:
-        raise ValueError("Error: No hay asientos disponibles en la clase seleccionada.")
+        return f"¡ERROR! El vuelo con el código {codigo_vuelo} no ha sido encontrado."
+# ====================================================================================
+    if not vuelo.verificarDisponibilidad(clase_elegida):
+        return f"¡ERROR! No hay asientos disponibles en la clase {clase_elegida} para el vuelo {codigo_vuelo}."
 
     pasajero = Pasajero(**pasajero_dict)
-    pasajeros_registrados.append(pasajero)
-    vuelo.pasajeros.append(pasajero)
 
     id_tiquete = len(tiquetes_vendidos) + 1
-    nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, precio, codigo_vuelo=codigo_vuelo)
-    tiquetes_vendidos.append(nuevo_tiquete)
 
-    if not all(pasajero_dict.values()):
-        raise ValueError("Error: Todos los campos del pasajero deben ser diligenciados.")
-    
-    pasajero = Pasajero(**pasajero_dict)
-    pasajeros_registrados.append(pasajero)
-    vuelo.pasajeros.append(pasajero)
+    if clase_elegida.lower() == 'economica':
+        precio = 120000 
+    elif clase_elegida.lower() == 'preferencial':
+        precio = 750000
+    else:
+        return f"¡ERROR! La clase {clase_elegida} no es valida."
+        
+    nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, precio, codigo_vuelo) # Aquí pasas el código de vuelo.
+    tiquetes_vendidos.append(nuevo_tiquete)
+    vuelo.pasajeros.append(pasajero) # Agregas el pasajero al vuelo.
+    vuelo.reducir_capacidad(clase_elegida) # Reduces la capacidad disponible.
     
     return nuevo_tiquete
 
+# ====================================================================================
+# No se esta utilizando
 def consultar_vuelos_en_rango(fecha_inicio_str, fecha_fin_str):
     """
     Busca vuelos programados en un rango de fechas.
@@ -99,13 +91,11 @@ def consultar_vuelos_en_rango(fecha_inicio_str, fecha_fin_str):
         fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d %H:%M')
         fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d %H:%M')
     except ValueError:
-        raise ValueError("Error: Formato de fecha y hora inválido. Use 'YYYY-MM-DD HH:MM'.")
+        return "Error: Formato de fecha y hora inválido. Use 'YYYY-MM-DD HH:MM'."
 
-    vuelos_en_rango = [
-        v for v in vuelos_registrados 
-        if fecha_inicio <= v.fecha_salida <= fecha_fin
-    ]
+    vuelos_en_rango = [v for v in vuelos_registrados if fecha_inicio <= v.fecha_salida <= fecha_fin]
     return vuelos_en_rango
+# ====================================================================================
 
 def obtener_info_vuelo(codigo_vuelo):
     """
@@ -114,24 +104,21 @@ def obtener_info_vuelo(codigo_vuelo):
     """
     vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None)
     if not vuelo:
-        raise ValueError(f"Error: Vuelo con código '{codigo_vuelo}' no encontrado.")
+        return f"Error: Vuelo con código '{codigo_vuelo}' no encontrado."
     
-    asientos_economicos_ocupados = sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase == 'Economica')
-    asientos_preferenciales_ocupados = sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase == 'Preferencial')
-    
-    asientos_economicos_disponibles = vuelo.capacidad_economica - asientos_economicos_ocupados
-    asientos_preferenciales_disponibles = vuelo.capacidad_preferencial - asientos_preferenciales_ocupados
+    asientos_economicos_ocupados = vuelo.capacidad_economica - sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'economica')
+    asientos_preferenciales_ocupados = vuelo.capacidad_preferencial - sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'preferencial')
     
     total_asientos_ocupados = asientos_economicos_ocupados + asientos_preferenciales_ocupados
-    total_asientos_disponibles = asientos_economicos_disponibles + asientos_preferenciales_disponibles
-
+    total_asientos_disponibles = vuelo.capacidad_economica + vuelo.capacidad_preferencial - total_asientos_ocupados
+    
     return {
         'codigo': vuelo.codigo_vuelo,
         'pasajeros_registrados': len(vuelo.pasajeros),
         'asientos_ocupados': total_asientos_ocupados,
         'asientos_disponibles': total_asientos_disponibles,
         'info_por_clase': {
-            'Economica': {'ocupados': asientos_economicos_ocupados, 'disponibles': asientos_economicos_disponibles},
-            'Preferencial': {'ocupados': asientos_preferenciales_ocupados, 'disponibles': asientos_preferenciales_disponibles}
+            'Economica': {'ocupados': asientos_economicos_ocupados, 'disponibles': vuelo.capacidad_economica - asientos_economicos_ocupados},
+            'Preferencial': {'ocupados': asientos_preferenciales_ocupados, 'disponibles': vuelo.capacidad_preferencial - asientos_preferenciales_ocupados}
         }
     }
