@@ -53,6 +53,19 @@ vuelos_registrados.extend([vuelo1, vuelo2, vuelo3])
 def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
     if not all(pasajero_dict.values()):
         return "¡ERROR! Todos los campos deben estar completos."
+    
+    nombre_completo = pasajero_dict.get("nombre_completo", "")
+    if not nombre_completo.replace(" ", "").isalpha():
+        return "¡ERROR! El espacio de nombre completo debe de contener solo texto."
+    
+    telefono = pasajero_dict.get("telefono", "")
+    if not telefono.isdigit():
+        return "¡ERROR! El número de teléfono debe contener solo dígitos."
+    
+    numero_documento = pasajero_dict.get("id_pasajero", "")
+    if not numero_documento.isdigit():
+        return "¡ERROR! El número de documento debe contener solo dígitos."
+
 # ====================================================================================     
 # La condicional nunca se cumple   
     vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None)

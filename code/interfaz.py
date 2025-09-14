@@ -81,14 +81,14 @@ class FrameCompraTiquete(ctk.CTkFrame):
 
         # Columna 1
         ctk.CTkLabel(campos_frame, text="Tipo de documento").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        self.tipo_doc_entry = ctk.CTkEntry(campos_frame)
-        self.tipo_doc_entry.grid(row=1, column=0, padx=10, pady=5)
+        self.documento_opcion = ctk.CTkOptionMenu(campos_frame, values=["Cédula de Ciudadanía", "Tarjeta de Identidad"])
+        self.documento_opcion.grid(row=1, column=0, padx=10, pady=5)
         ctk.CTkLabel(campos_frame, text="Número de documento").grid(row=2, column=0, sticky="w", padx=10, pady=5)
         self.num_doc_entry = ctk.CTkEntry(campos_frame)
         self.num_doc_entry.grid(row=3, column=0, padx=10, pady=5)
         ctk.CTkLabel(campos_frame, text="Sexo").grid(row=4, column=0, sticky="w", padx=10, pady=5)
-        self.sexo_entry = ctk.CTkEntry(campos_frame)
-        self.sexo_entry.grid(row=5, column=0, padx=10, pady=5)
+        self.sexo_opcion = ctk.CTkOptionMenu(campos_frame, values=["Femenino", "Masculino"])
+        self.sexo_opcion.grid(row=5, column=0, padx=10, pady=5)
 
         # Columna 2
         ctk.CTkLabel(campos_frame, text="Fecha de nacimiento").grid(row=0, column=1, sticky="w", padx=10, pady=5)
@@ -111,10 +111,10 @@ class FrameCompraTiquete(ctk.CTkFrame):
         # Validar primero
  
         pasajero_data = {
-            'tipo_documento': self.tipo_doc_entry.get().strip(),
+            'tipo_documento': self.documento_opcion.get().strip(),
             'id_pasajero': self.num_doc_entry.get().strip(),
             'nombre_completo': self.nombre_entry.get().strip(),
-            'sexo': self.sexo_entry.get().strip(),
+            'sexo': self.sexo_opcion.get().strip(),
             'fecha_nacimiento': self.fecha_nac_entry.get().strip(),
             'telefono': self.telefono_entry.get().strip()
         }
@@ -123,7 +123,7 @@ class FrameCompraTiquete(ctk.CTkFrame):
         if isinstance(resultado, str):
             self.master.mostrar_mensaje(f"{resultado}", "Error en la Venta")
         else:
-            self.master.mostrar_mensaje(f"Tiquete comprado con éxito. ID Tiquete: {resultado.id_tiquete}", "Venta Exitosa")
+            self.master.mostrar_mensaje(f"¡Tiquete comprado con éxito! \n Ciudad origen: {ciudad_origen} \n Ciudad destino: {ciudad_destino} \n ID Tiquete: {resultado.id_tiquete}", "Venta Exitosa")
 
     def volver(self):
         self.master.show_frame(FrameVuelos)
