@@ -9,7 +9,6 @@ from datetime import datetime
 
 # Registros globales
 vuelos_registrados = []
-'''pasajeros_registrados = []'''
 tiquetes_vendidos = []
 
 # Vuelos pre-existentes con sus capacidades
@@ -66,12 +65,8 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
     if not numero_documento.isdigit():
         return "¡ERROR! El número de documento debe contener solo dígitos."
 
-# ====================================================================================     
-# La condicional nunca se cumple   
     vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None)
-    if not vuelo:
-        return f"¡ERROR! El vuelo con el código {codigo_vuelo} no ha sido encontrado."
-# ====================================================================================
+
     if not vuelo.verificarDisponibilidad(clase_elegida):
         return f"¡ERROR! No hay asientos disponibles en la clase {clase_elegida} para el vuelo {codigo_vuelo}."
 
@@ -92,23 +87,6 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
     vuelo.reducir_capacidad(clase_elegida) # Reduces la capacidad disponible.
     
     return nuevo_tiquete
-
-# ====================================================================================
-# No se esta utilizando
-def consultar_vuelos_en_rango(fecha_inicio_str, fecha_fin_str):
-    """
-    Busca vuelos programados en un rango de fechas.
-    Retorna una lista de vuelos que cumplen con el criterio.
-    """
-    try:
-        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d %H:%M')
-        fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d %H:%M')
-    except ValueError:
-        return "Error: Formato de fecha y hora inválido. Use 'YYYY-MM-DD HH:MM'."
-
-    vuelos_en_rango = [v for v in vuelos_registrados if fecha_inicio <= v.fecha_salida <= fecha_fin]
-    return vuelos_en_rango
-# ====================================================================================
 
 def obtener_info_vuelo(codigo_vuelo):
     """

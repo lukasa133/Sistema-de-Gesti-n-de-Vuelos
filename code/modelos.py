@@ -2,29 +2,6 @@
 
 from datetime import datetime
 
-# ====================================================================================
-# No se esta utilizando
-class Tripulacion:
-    def __init__(self, id_tripulante, nombre, rol):
-        self.id_tripulante = id_tripulante
-        self.nombre = nombre
-        self.rol = rol
-class Avion:
-    def __init__(self, id_avion, modelo, capacidad_total):
-        self.id_avion = id_avion
-        self.modelo = modelo
-        self.capacidad_total = capacidad_total
-
-class Asiento:
-    def __init__(self, numero_asiento, clase, disponible=True):
-        self.numero_asiento = numero_asiento
-        self.clase = clase
-        self.disponible = disponible
-
-    def ocupar_asiento(self):
-        self.disponible = False
-# ====================================================================================
-
 class Tiquete:
     def __init__(self, id_tiquete, clase, precio_tiquete, codigo_vuelo):
         self.id_tiquete = id_tiquete
