@@ -1,4 +1,6 @@
-# modelos.py
+# ====================================================================================
+# modelos
+# ====================================================================================
 
 from datetime import datetime
 
@@ -34,8 +36,7 @@ class Vuelo:
         self.pasajeros = []
         self.tripulacion = []
 
-    def verificarDisponibilidad(self, clase_elegida):
-        """Verifica si hay asientos disponibles en la clase elegida."""
+    def verificarDisponibilidad(self, clase_elegida): # Se utiliza para verifica si hay asientos disponibles en la clase elegida.
         clase_elegida = clase_elegida.lower()
         if clase_elegida == 'economica':
             return self.capacidad_economica > 0
@@ -43,8 +44,7 @@ class Vuelo:
             return self.capacidad_preferencial > 0
         return False
     
-    def reducir_capacidad(self, clase_elegida):
-        """Reduce la capacidad disponible de una clase."""
+    def reducir_capacidad(self, clase_elegida): # Función para reducir la capacidad disponible de una clase.
         clase_elegida = clase_elegida.lower()
         if clase_elegida == 'economica':
             self.capacidad_economica -= 1
