@@ -76,12 +76,14 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
 
     id_tiquete = len(tiquetes_vendidos) + 1
 
+"""
     if clase_elegida.lower() == 'economica':
         precio = 120000 
     elif clase_elegida.lower() == 'preferencial':
         precio = 750000
     else:
         return f"¡ERROR! La clase {clase_elegida} no es valida."
+"""
         
     nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, precio, codigo_vuelo) # Aquí pasas el código de vuelo.
     tiquetes_vendidos.append(nuevo_tiquete)
