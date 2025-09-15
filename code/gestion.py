@@ -53,6 +53,7 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
     if not all(pasajero_dict.values()):
         return "¡ERROR! Todos los campos deben estar completos."
     
+"""
     nombre_completo = pasajero_dict.get("nombre_completo", "")
     if not nombre_completo.replace(" ", "").isalpha():
         return "¡ERROR! El espacio de nombre completo debe de contener solo texto."
@@ -64,6 +65,7 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida):
     numero_documento = pasajero_dict.get("id_pasajero", "")
     if not numero_documento.isdigit():
         return "¡ERROR! El número de documento debe contener solo dígitos."
+"""
 
     vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None)
 
