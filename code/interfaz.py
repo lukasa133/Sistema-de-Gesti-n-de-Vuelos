@@ -5,21 +5,20 @@
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 from gestion import vuelos_registrados, obtener_info_vuelo, vender_tiquete
-from modelos import Pasajero
 
 # Establece los colores que tendrá el sistema.
 ctk.set_appearance_mode("System") 
-ctk.set_default_color_theme("dark-blue") 
+ctk.set_default_color_theme("green") 
 
 class App(ctk.CTk):
     def __init__(self): # Establece las medidas y el título que tendrá la interfaz.
         super().__init__()
         self.geometry("800x600")
         self.title("Vuelos Disponibles")
-        self.current_frame = None
+        self.current_frame = None # Aquí se guarda el frame/pantalla actual
         self.show_frame(FrameBievenida)
         
-    def show_frame(self, frame_class, *args, **kwargs):
+    def show_frame(self, frame_class, *args, **kwargs): # Permite cambiar de pantalla (frame) en la ventana
         if self.current_frame is not None:
             self.current_frame.destroy()
         self.current_frame = frame_class(self, *args, **kwargs)
@@ -56,16 +55,25 @@ class FrameVuelos(ctk.CTkFrame): # Frame que muestra la información de los vuel
 
         info_basica_frame = ctk.CTkFrame(tarjeta, fg_color="transparent")
         info_basica_frame.pack(fill="x", padx=10, pady=10)
-        ctk.CTkLabel(info_basica_frame, text=f"Ciudad origen: {vuelo.ciudad_origen} - Ciudad destino: {vuelo.ciudad_destino}", font=("Roboto", 14)).grid(row=0, column=0, sticky="w", columnspan=2) # Se muestra los atributos de la ciudad de origen y destino de la clase vuelo.
-        ctk.CTkLabel(info_basica_frame, text=f"Fecha: {vuelo.fecha_salida.strftime('%d/%m/%Y')}").grid(row=1, column=0, sticky="w", columnspan=2) # Se muestra el atributo de fecha de salida.
-        ctk.CTkLabel(info_basica_frame, text=f"Cupo total: {vuelo.capacidad_economica + vuelo.capacidad_preferencial}").grid(row=2, column=0, sticky="w", columnspan=2) # Se muestra el cupo total de asientos sumando las listas de capacidad_economica y capacidad_preferencial.
-        ctk.CTkLabel(info_basica_frame, text=f"Cupos preferenciales disponibles: {vuelo_info['info_por_clase']['Preferencial']['disponibles']}").grid(row=3, column=0, sticky="w", columnspan=2)
-        ctk.CTkLabel(info_basica_frame, text=f"Cupos económicos disponibles: {vuelo_info['info_por_clase']['Economica']['disponibles']}").grid(row=4, column=0, sticky="w", columnspan=2)
+        
+        ctk.CTkLabel(info_basica_frame, text=f"Ciudad origen: {vuelo.ciudad_origen} - Ciudad destino: {vuelo.ciudad_destino}", font=("Roboto", 14)).grid(row=0, column=0, sticky="w", columnspan=2)
+        ctk.CTkLabel(info_basica_frame, text=f"Fecha: {vuelo.fecha_salida.strftime('%d/%m/%Y')}").grid(row=1, column=0, sticky="w", columnspan=2)
+        ctk.CTkLabel(info_basica_frame, text=f"Cupo total: {vuelo.capacidad_economica + vuelo.capacidad_preferencial}").grid(row=2, column=0, sticky="w", columnspan=2)
+        
+        ctk.CTkLabel(info_basica_frame, text=f"Precio económico: ${vuelo.precio_economica}").grid(row=3, column=0, sticky="w", columnspan=2)
+        ctk.CTkLabel(info_basica_frame, text=f"Precio preferencial: ${vuelo.precio_preferencial}").grid(row=4, column=0, sticky="w", columnspan=2)
+        
+        ctk.CTkLabel(info_basica_frame, text=f"Cupos preferenciales disponibles: {vuelo_info['info_por_clase']['Preferencial']['disponibles']}").grid(row=5, column=0, sticky="w", columnspan=2)
+        
+        # LÍNEA CORREGIDA
+        ctk.CTkLabel(info_basica_frame, text=f"Cupos económicos disponibles: {vuelo_info['info_por_clase']['Economica']['disponibles']}").grid(row=6, column=0, sticky="w", columnspan=2)
 
         detalles_frame = ctk.CTkFrame(tarjeta, fg_color="transparent") # Se muestra la información correspondiente a elbpiloto, copiloto y los personales de cabina.
-        ctk.CTkLabel(detalles_frame, text=f"Piloto: Juan", font=("Roboto", 12)).pack(anchor="w", pady=2)
-        ctk.CTkLabel(detalles_frame, text=f"Copiloto: Daniel", font=("Roboto", 12)).pack(anchor="w", pady=2)
-        ctk.CTkLabel(detalles_frame, text=f"Personal de cabina: Brayan - Martin", font=("Roboto", 12)).pack(anchor="w", pady=2)
+        ctk.CTkLabel(detalles_frame, text=f"Piloto: {vuelo.tripulacion['Piloto']}", font=("Roboto", 12)).pack(anchor="w", pady=2)
+        ctk.CTkLabel(detalles_frame, text=f"Copiloto: {vuelo.tripulacion['Copiloto']}", font=("Roboto", 12)).pack(anchor="w", pady=2)
+        
+        personal_str = ", ".join(vuelo.tripulacion['personal_de_cabina'])
+        ctk.CTkLabel(detalles_frame, text=f"Personal de cabina: {personal_str}", font=("Roboto", 12)).pack(anchor="w", pady=2)
 
         def toggle_detalles():
             if detalles_frame.winfo_ismapped():
@@ -75,11 +83,13 @@ class FrameVuelos(ctk.CTkFrame): # Frame que muestra la información de los vuel
 
         boton_frame = ctk.CTkFrame(tarjeta, fg_color="transparent")
         boton_frame.pack(fill="x", padx=10, pady=5)
+        
         btn_mostrar_mas = ctk.CTkButton(
             boton_frame, 
             text="MOSTRAR MÁS", 
             command=toggle_detalles) # Crea el botón de mostrar más.
         btn_mostrar_mas.pack(side="left", padx=(0, 5))
+        
         btn_comprar = ctk.CTkButton(
             boton_frame, 
             text="COMPRAR BOLETO", 
@@ -139,9 +149,20 @@ class FrameCompraTiquete(ctk.CTkFrame): # Frame para el registro de datos del us
 
         botones_frame = ctk.CTkFrame(self, fg_color="transparent")
         botones_frame.pack(pady=20)
-        ctk.CTkButton(botones_frame, text="COMPRAR CLASE PREFERENCIAL", command=lambda: self.procesar_venta("Preferencial")).pack(side="top", pady=5) # Botón para comprar la clase  preferencial.
-        ctk.CTkButton(botones_frame, text="COMPRAR CLASE ECONOMICA", command=lambda: self.procesar_venta("Economica")).pack(side="top", pady=5) # Botón para comprar la clase  economica.
-        ctk.CTkButton(botones_frame, text="VOLVER", command=self.volver).pack(side="top", pady=10)
+        ctk.CTkButton(
+            botones_frame, 
+            text="COMPRAR CLASE PREFERENCIAL", 
+            command=lambda: self.procesar_venta("Preferencial")).pack(side="top", pady=5) # Botón para comprar la clase  preferencial.
+        
+        ctk.CTkButton(
+            botones_frame, 
+            text="COMPRAR CLASE ECONOMICA", 
+            command=lambda: self.procesar_venta("Economica")).pack(side="top", pady=5) # Botón para comprar la clase  economica.
+        
+        ctk.CTkButton(
+            botones_frame, 
+            text="VOLVER", 
+            command=self.volver).pack(side="top", pady=10)
 
     def validar_digitos(self, texto_propuesto): # Función que muestra un mensaje si se ingresa un dato no númerico.
         if texto_propuesto == "" or texto_propuesto.isdigit():
