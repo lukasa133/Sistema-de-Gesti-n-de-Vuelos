@@ -48,8 +48,7 @@ def vender_tiquete(codigo_vuelo, pasajero_dict, clase_elegida): # Función encar
     if not all(pasajero_dict.values()): # Condicional para mostrar mensaje al dejar algún espacio vacio.
         return "¡ERROR! Todos los campos deben estar completos."
     
-"""
-No se utiliza
+
     nombre_completo = pasajero_dict.get("nombre_completo", "")
     if not nombre_completo.replace(" ", "").isalpha():
         return "¡ERROR! El espacio de nombre completo debe de contener solo texto."
@@ -61,11 +60,9 @@ No se utiliza
     numero_documento = pasajero_dict.get("id_pasajero", "")
     if not numero_documento.isdigit():
         return "¡ERROR! El número de documento debe contener solo dígitos."
-"""
 
-    vuelo = next((v for v in vuelos_registrados 
-    if v.codigo_vuelo == codigo_vuelo), 
-    None) # Usa 'next' para encontrar el primer vuelo que coincida con el código_vuelo, si no lo encuentra devuelve 'None'.
+
+    vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None) # Usa 'next' para encontrar el primer vuelo que coincida con el código_vuelo, si no lo encuentra devuelve 'None'.
 
     if not vuelo.verificarDisponibilidad(clase_elegida): # Condicional para mostrar mensabe si no se encuentran asientos disponibles para la clase.
         return f"¡ERROR! No hay asientos disponibles en la clase {clase_elegida} para el vuelo {codigo_vuelo}."
@@ -74,14 +71,14 @@ No se utiliza
 
     id_tiquete = len(tiquetes_vendidos) + 1
 
-"""
+
     if clase_elegida.lower() == 'economica':
         precio = 120000 
     elif clase_elegida.lower() == 'preferencial':
         precio = 750000
     else:
         return f"¡ERROR! La clase {clase_elegida} no es valida."
-"""
+
         
     nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, precio, codigo_vuelo) # Crea un objeto para oa clase tiquete.
     tiquetes_vendidos.append(nuevo_tiquete)
