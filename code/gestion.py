@@ -60,56 +60,57 @@ def vender_tiquete(codigo_vuelo, pasajero_data, clase_elegida): # Función encar
     if not all(pasajero_data.values()): # Condicional para mostrar mensaje al dejar algún espacio vacio.
         return "¡ERROR! Todos los campos deben estar completos."
 
-    vuelo = next((v for v in vuelos_registrados if v.codigo_vuelo == codigo_vuelo), None) # Usa 'next' para encontrar el primer vuelo que coincida con el código_vuelo, si no lo encuentra devuelve 'None'.
-
-    if not vuelo.verificarDisponibilidad(clase_elegida): # Condicional para mostrar mensabe si no se encuentran asientos disponibles para la clase.
-        return f"¡ERROR! No hay asientos disponibles en la clase {clase_elegida} para el vuelo {codigo_vuelo}."
-
-    pasajero = Pasajero(**pasajero_data) # Separa los valores del diccionario pasajero_dict para tomarlo como atributos y crear un objeto.
-
-    id_tiquete = len(tiquetes_vendidos) + 1
+    vuelo = None
+    for v in vuelos_registrados: 
+        if v.codigo_vuelo == codigo_vuelo: # Evalua si el código del vuelo registrado coincide
+            vuelo = v
+            break
         
-    nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, codigo_vuelo) # Crea un objeto para oa clase tiquete.
-    tiquetes_vendidos.append(nuevo_tiquete)
-    vuelo.pasajeros.append(pasajero) # Agregas el pasajero a la lista de la clase vuelo.
-    # vuelo.tripulacion.append()
+    # Calcular asientos disponibles antes de vender
+    asientos_economicos_vendidos = sum(1 for t in tiquetes_vendidos 
+                                       if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'economica')
     
-    return nuevo_tiquete
+    asientos_preferenciales_vendidos = sum(1 for t in tiquetes_vendidos 
+                                           if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'preferencial')
+    
+    # Evalua la disponibilidad del asiento 
+    asientos_economicos_disponibles = vuelo.capacidad_economica - asientos_economicos_vendidos 
+    asientos_preferenciales_disponibles = vuelo.capacidad_preferencial - asientos_preferenciales_vendidos
+
+    # Condicional para evaluar si los asientos llegó a su cupo maximo.
+    if clase_elegida.lower() == 'economica' and asientos_economicos_disponibles <= 0:
+        return f"¡ERROR! No hay asientos disponibles en la clase Economica para el vuelo {codigo_vuelo}."
+    
+    if clase_elegida.lower() == 'preferencial' and asientos_preferenciales_disponibles <= 0:
+        return f"¡ERROR! No hay asientos disponibles en la clase Preferencial para el vuelo {codigo_vuelo}."
+
+    pasajero = Pasajero(**pasajero_data) # Desempaqueta el diccionario pasajero_data y crea un objeto. 
+    id_tiquete = len(tiquetes_vendidos) + 1
+    nuevo_tiquete = Tiquete(id_tiquete, clase_elegida, codigo_vuelo)
+    
+    tiquetes_vendidos.append(nuevo_tiquete)
+    vuelo.pasajeros.append(pasajero)
+    
+    return nuevo_tiquete 
 
 def obtener_info_vuelo(codigo_vuelo): # Función para detallar la  información de un vuelo: pasajeros, asientos ocupados y disponibles.
     
-    vuelo = next((v for v in vuelos_registrados 
-    if v.codigo_vuelo == codigo_vuelo), 
-    None) # Usa 'next' para encontrar el primer vuelo que coincida con el código_vuelo, si no lo encuentra devuelve 'None'.
+    vuelo = None
+    for v in vuelos_registrados:
+        if v.codigo_vuelo == codigo_vuelo:
+            vuelo = v
+            break
+    # Se asume que el código siempre existe por la interfaz
+    asientos_economicos_vendidos = sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'economica')
+    asientos_preferenciales_vendidos = sum(1 for t in tiquetes_vendidos if t.codigo_vuelo == codigo_vuelo and t.clase.lower() == 'preferencial')
     
-    if not vuelo:
-        return f"Error: Vuelo con código '{codigo_vuelo}' no encontrado."
-    
-     # 1. Contar los tiquetes vendidos por clase
-    asientos_economicos_vendidos = sum(1 for t in tiquetes_vendidos 
-    if t.codigo_vuelo == codigo_vuelo 
-    and t.clase.lower() == 'economica') # Calcula los asientos ocupados restando los tiquetes vendidos en capacidad_economica. El generador (1 for ...) cuenta cada uno de los tiquetes vendidos para la clase económica.
-    
-    asientos_preferenciales_vendidos = sum(1 for t in tiquetes_vendidos 
-    if t.codigo_vuelo == codigo_vuelo 
-    and t.clase.lower() == 'preferencial') # Calcula los asientos ocupados restando los tiquetes vendidos en capacidad_preferencial. El generador (1 for ...) cuenta cada uno de los tiquetes vendidos para la clase preferencial.
-    
-    
-    # 2. Calcular los cupos disponibles
+    # Evalua la disponibilidad del asiento para la interfaz.
     asientos_economicos_disponibles = vuelo.capacidad_economica - asientos_economicos_vendidos
     asientos_preferenciales_disponibles = vuelo.capacidad_preferencial - asientos_preferenciales_vendidos
     
-    # El resto de tus cálculos...
-    total_asientos_ocupados = asientos_economicos_vendidos + asientos_preferenciales_vendidos
-    total_asientos_disponibles = asientos_economicos_disponibles + asientos_preferenciales_disponibles
-    
     return {
-        'codigo': vuelo.codigo_vuelo,
-        'pasajeros_registrados': len(vuelo.pasajeros),
-        'asientos_ocupados': total_asientos_ocupados,
-        'asientos_disponibles': total_asientos_disponibles,
         'info_por_clase': {
-            'Economica': {'ocupados': asientos_economicos_vendidos, 'disponibles': asientos_economicos_disponibles},
-            'Preferencial': {'ocupados': asientos_preferenciales_vendidos, 'disponibles': asientos_preferenciales_disponibles}
+            'Economica': {'disponibles': asientos_economicos_disponibles},
+            'Preferencial': {'disponibles': asientos_preferenciales_disponibles}
         }
     }

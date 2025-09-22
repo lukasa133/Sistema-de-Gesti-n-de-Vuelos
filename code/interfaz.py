@@ -208,4 +208,4 @@ class FrameCompraTiquete(ctk.CTkFrame): # Frame para el registro de datos del us
 
 if __name__ == "__main__":
     app = App()
-    app.mainloop()
+    app.mainloop() 

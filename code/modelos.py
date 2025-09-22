@@ -20,7 +20,11 @@ class Pasajero:
         self.telefono = telefono
 
 class Vuelo:
-    def __init__(self, codigo_vuelo, ciudad_origen, ciudad_destino, fecha_salida, fecha_llegada, capacidad_economica, capacidad_preferencial, precio_economico, precio_preferencial, tripulacion):
+    def __init__(self, codigo_vuelo, 
+                 ciudad_origen, ciudad_destino, 
+                 fecha_salida, fecha_llegada,
+                 capacidad_economica, capacidad_preferencial, precio_economico, precio_preferencial, tripulacion):
+       
         self.codigo_vuelo = codigo_vuelo
         self.ciudad_origen = ciudad_origen
         self.ciudad_destino = ciudad_destino
