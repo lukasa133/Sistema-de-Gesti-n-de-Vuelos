@@ -53,7 +53,28 @@ vuelo3 = Vuelo(
 # Añadir los vuelos a la lista de registros.
 vuelos_registrados.extend([vuelo1, vuelo2, vuelo3])
 
+def crear_vuelo(vuelo_data): # Función encargada de crear un nuevo vuelo.
+    if not all(vuelo_data.values()):
+        return "¡ERROR! Todos los campos deben estar completos."
+    
+    for v in vuelos_registrados:
+        if v.codigo_vuelo == vuelo_data['codigo_vuelo']:
+            return f"¡ERROR! El código de vuelo {vuelo_data['codigo_vuelo']} ya existe."
 
+    nuevo_vuelo = Vuelo(**vuelo_data)
+    vuelos_registrados.append(nuevo_vuelo)
+    return nuevo_vuelo
+
+def eliminar_vuelo(codigo_vuelo): # Función encargada de eliminar un vuelo.
+    global vuelos_registrados
+    for i, v in enumerate(vuelos_registrados):
+        if v.codigo_vuelo == codigo_vuelo:
+            del vuelos_registrados[i]
+            return f"Vuelo {codigo_vuelo} eliminado con éxito."
+            
+    return f"ERROR: No se encontró el vuelo {codigo_vuelo}."
+
+# return vuelos_registrados
 
 def vender_tiquete(codigo_vuelo, pasajero_data, clase_elegida): # Función encargada de realizar la venta de los tiquetes.
 
