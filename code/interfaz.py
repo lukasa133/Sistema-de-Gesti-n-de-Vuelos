@@ -3,6 +3,7 @@
 # ====================================================================================
 
 import customtkinter as ctk
+from datetime import datetime
 from CTkMessagebox import CTkMessagebox
 from gestion import vuelos_registrados, obtener_info_vuelo, vender_tiquete, eliminar_vuelo, crear_vuelo
 from tkinter import messagebox
@@ -152,7 +153,7 @@ class FrameAdmin(ctk.CTkFrame):
             command=lambda codigo=vuelo.codigo_vuelo: self.confirmar_eliminacion(codigo)
         )
         btn_eliminar.pack(side="right", padx=(0, 5))
-
+        
         return tarjeta
 
     def confirmar_eliminacion(self, codigo_vuelo):
@@ -165,14 +166,11 @@ class FrameAdmin(ctk.CTkFrame):
             self.master.mostrar_mensaje(resultado, "Resultado")
             self.mostrar_vuelos()
 
-
 class CrearNuevoVuelo(ctk.CTkFrame):
     def __init__(self, master, codigo_vuelo):
         super().__init__(master)
         self.master = master
         self.codigo_vuelo = codigo_vuelo
-
-
 
         ctk.CTkLabel(self, text="Datos del Vuelo", font=("Roboto", 24)).pack(pady=20)
         campos_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -243,14 +241,22 @@ class CrearNuevoVuelo(ctk.CTkFrame):
         ctk.CTkLabel(campos_frame, text="Personal de Cabina 2").grid(row=12, column=0, sticky="w", padx=10, pady=5)
         self.cabina2_entry = ctk.CTkEntry(campos_frame, validate="key", validatecommand=(self.validar_letras_cmd, "%P"))
         self.cabina2_entry.grid(row=13, column=0, padx=10, pady=5)
+        
+        botones_frame = ctk.CTkFrame(self, fg_color="transparent")
+        botones_frame.pack(pady=20)
 
+        ctk.CTkButton(
+            botones_frame, 
+            text="GUARDAR VUELO", 
+            command=self.guardar_vuelo
+            ).pack(side="top", pady=5)
 
-         # =============================
-        # Botón para guardar (AQUÍ)
-        # =============================
-        guardar_btn = ctk.CTkButton(self, text="Guardar Vuelo", command=self.guardar_vuelo)
-        guardar_btn.pack(pady=20)
-
+        ctk.CTkButton(
+            botones_frame, 
+            text="VOLVER", 
+            command=self.volver
+            ).pack(side="top", pady=10)
+            
     def validar_digitos(self, valor):
         return valor.isdigit() or valor == ""
 
@@ -258,29 +264,33 @@ class CrearNuevoVuelo(ctk.CTkFrame):
         return valor.isalpha() or valor == ""
 
     def guardar_vuelo(self):
-        vuelo_data = {
-            "codigo_vuelo": self.codigo_vuelo_entry.get(),
-            "ciudad_origen": self.ciudad_origen_entry.get(),
-            "ciudad_destino": self.ciudad_destino_entry.get(),
-            "fecha_salida": self.fecha_salida_entry.get(),
-            "fecha_llegada": self.fecha_llegada_entry.get(),
-            "precio_economico": self.precio_economico_entry.get(),
-            "precio_preferencial": self.precio_preferencial_entry.get(),
-            "capacidad_economica": int(self.capacidad_economica_entry.get() or 0),
-            "capacidad_preferencial": int(self.capacidad_preferencial_entry.get() or 0),
-            "tripulacion": {
-                "Piloto": self.piloto_entry.get(),
-                "Copiloto": self.copiloto_entry.get(),
-                "personal_de_cabina": [
-                    self.cabina1_entry.get(),
-                    self.cabina2_entry.get()
-                ]
+        try:
+            vuelo_data = {
+                "codigo_vuelo": self.codigo_vuelo_entry.get(),
+                "ciudad_origen": self.ciudad_origen_entry.get(),
+                "ciudad_destino": self.ciudad_destino_entry.get(),
+                "fecha_salida": datetime.strptime(self.fecha_salida_entry.get(), "%d/%m/%Y"),
+                "fecha_llegada": datetime.strptime(self.fecha_llegada_entry.get(), "%d/%m/%Y"),
+                "precio_economica": int(self.precio_economico_entry.get() or 0),
+                "precio_preferencial": int(self.precio_preferencial_entry.get() or 0),
+                "capacidad_economica": int(self.capacidad_economica_entry.get() or 0),
+                "capacidad_preferencial": int(self.capacidad_preferencial_entry.get() or 0),
+                "tripulacion": {
+                    "Piloto": self.piloto_entry.get(),
+                    "Copiloto": self.copiloto_entry.get(),
+                    "personal_de_cabina": [
+                        self.cabina1_entry.get(),
+                        self.cabina2_entry.get()
+                    ]
+                }
             }
-        }
+        except ValueError:
+            self.master.mostrar_mensaje("Formato de fecha inválido. Usa dd/mm/yyyy.", "Error")
+            return
 
         resultado = crear_vuelo(vuelo_data)
 
-        if isinstance(resultado, str):  # Si devuelve un error
+        if isinstance(resultado, str):  # si es mensaje de error
             self.master.mostrar_mensaje(resultado, "Error")
         else:
             self.master.mostrar_mensaje(
@@ -288,6 +298,9 @@ class CrearNuevoVuelo(ctk.CTkFrame):
                 "Éxito"
             )
             self.master.show_frame(FrameAdmin)
+            
+    def volver(self):
+      self.master.show_frame(FrameAdmin)
         
 class FrameCompraTiquete(ctk.CTkFrame): # Frame para el registro de datos del usuario.
     def __init__(self, master, codigo_vuelo):
